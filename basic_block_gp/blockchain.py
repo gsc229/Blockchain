@@ -56,8 +56,7 @@ class Blockchain(object):
         # Use json.dumps to convert json into a string        
         # Use hashlib.sha256 to create a hash
         # It requires a `bytes-like` object, which is what
-        # .encode() does.
-        
+        # .encode() does.        
         # It converts the Python string into a byte string.
         # We must make sure that the Dictionary is Ordered,
         # or we'll have inconsistent hashes        
@@ -131,10 +130,11 @@ class Blockchain(object):
 # Instantiate our Node
 app = Flask(__name__)
 
+
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
-# Instantiate the Blockchain
+# Instantiate the Blockchain 
 blockchain = Blockchain()
 
 
@@ -147,6 +147,7 @@ def mine():
     # Forge the new Block by adding it to the chain with the proof
 
     previous_hash = blockchain.hash(blockchain.last_block)
+
     block = blockchain.new_block(proof, previous_hash)
 
 
@@ -168,7 +169,7 @@ def full_chain():
 
 # Run the program on port 5000
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=8000)
 
 
 

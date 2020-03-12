@@ -104,7 +104,7 @@ class Blockchain(object):
         guess = f'{block_string}{proof}'
         
         check_guess = hashlib.sha256(guess.encode()).hexdigest()
-        print(check_guess)
+        print(f"valid_proof check_guess: {check_guess}")
         return check_guess[:3] == "000"      
 
         
@@ -123,15 +123,26 @@ blockchain = Blockchain()
 
 @app.route('/mine', methods=['POST'])
 def mine():
+    data = request.get_json()
+    print("YOU HIT THE POST /mine endpoint")
+    print(f"data: {data}, type: {type(data)}")  
+    req_proof = data['proof']
+    
+    print(type(req_proof))
     # Run the proof of work algorithm to get the next proof
-    #data = request.get_json()
-    # Forge the new Block by adding it to the chain with the proof
+    #proof = blockchain.proof_of_work(blockchain.last_block)
 
+
+    last_block = json.dumps(blockchain.last_block, sort_keys=True)
+    
+    proof = blockchain.valid_proof(last_block, data['proof'])
+    print(f"last_block: {last_block}, type: {type(last_block)}")
+    
+    # Forge the new Block by adding it to the chain with the proof
+    print(f"/mine proof = {proof}")
     # previous_hash = blockchain.hash(blockchain.last_block)
     # block = blockchain.new_block(proof, previous_hash)
-    print("YOU HIT THE /mine endpoint")
-    print(request.data)
-
+    
     response = {
         "new_block": "HI!"
     }
@@ -150,12 +161,13 @@ def full_chain():
 
 @app.route('/last_block', methods=['GET'])
 def respond():
+    print("YOU HIT THE GET /last_block endpoint")
     response = {
         "last_block": blockchain.last_block
     }
-
+    print(type(blockchain.last_block))
     return jsonify(response), 200
-    #return "HI! /last_block GET"
+   
 
 
 # Run the program on port 5000
