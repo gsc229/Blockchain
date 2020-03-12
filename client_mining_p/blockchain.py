@@ -13,8 +13,8 @@ class Blockchain(object):
         self.chain = []
         self.current_transactions = []
         # Create the genesis block
-        self.new_block(previous_hash=1, proof=100)
-
+        self.new_block(proof=100, previous_hash=1)
+        self.prev_hash = self.new_block(proof=100, previous_hash=1)
     def new_block(self, proof, previous_hash=None):
         """
         Create a new Block in the Blockchain
@@ -36,7 +36,7 @@ class Blockchain(object):
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
-            'previous_hash': previous_hash or self.hash(self.last_block)
+            'previous_hash': previous_hash or self.prev_hash
         }
 
         # Reset the current list of transactions
@@ -87,8 +87,8 @@ class Blockchain(object):
 
    
 
-    @staticmethod
-    def valid_proof(block_string, proof):
+    # removed @static
+    def valid_proof(self, block_string, proof):
         """
         Validates the Proof:  Does hash(block_string + proof) contain 3
         leading zeroes?  Return true if the proof is valid
@@ -104,8 +104,10 @@ class Blockchain(object):
         guess = f'{block_string}{proof}'
         
         check_guess = hashlib.sha256(guess.encode()).hexdigest()
-        print(f"valid_proof check_guess: {check_guess}")
-        return check_guess[:3] == "000"      
+        if check_guess:
+            print(f"valid_proof check_guess: {check_guess}")
+            self.prev_hash = check_guess
+            return check_guess[:3] == "000"      
 
         
         # return True or False
@@ -133,19 +135,30 @@ def mine():
     #proof = blockchain.proof_of_work(blockchain.last_block)
 
 
-    last_block = json.dumps(blockchain.last_block, sort_keys=True)
-    
+    last_block = json.dumps(blockchain.last_block, sort_keys=True)    
     proof = blockchain.valid_proof(last_block, data['proof'])
-    print(f"last_block: {last_block}, type: {type(last_block)}")
-    
-    # Forge the new Block by adding it to the chain with the proof
+    print(f"last_block: {last_block} | type: {type(last_block)}")
     print(f"/mine proof = {proof}")
+    response = {
+        "new_block": "None",
+        "status": "failed",
+        "message": "No block created"
+    }
+
+    # Forge the new Block by adding it to the chain with the proof
+    if proof:
+        #previous_hash = blockchain.hash(blockchain.last_block)
+        new_block = blockchain.new_block(data['proof'])
+        response['new_block'] = new_block
+        response['status'] = "success"
+        response['message'] = "New Block Forged"
+        print(response)
+        return jsonify(response), 200
+
     # previous_hash = blockchain.hash(blockchain.last_block)
     # block = blockchain.new_block(proof, previous_hash)
     
-    response = {
-        "new_block": "HI!"
-    }
+    
 
     #return jsonify(response), 200
     return "HI /mine POST"

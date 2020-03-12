@@ -98,7 +98,7 @@ class Blockchain(object):
             proof += 1
         return proof
 
-        # return proof
+       
 
     @staticmethod
     def valid_proof(block_string, proof):
